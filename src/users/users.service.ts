@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity'; // adjust path if your entity is in src/users/entities/
+import { User } from '../entities/user.entity';
+import * as bcrypt from 'bcrypt';   // ← this line was missing
 
 @Injectable()
 export class UsersService {
@@ -14,5 +15,20 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
-  // We'll add create() method in the next step for registration
+  async create(createUserDto: { email: string; password: string; name?: string }): Promise<User> {
+    const existingUser = await this.findByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.usersRepository.create({
+      email: createUserDto.email,
+      password: hashedPassword,
+      name: createUserDto.name,
+    });
+
+    return this.usersRepository.save(user);
+  }
 }
