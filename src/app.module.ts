@@ -3,9 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './entities/user.entity'; 
 import { Task } from './entities/task.entity'; 
-
-
-
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TasksModule } from './tasks/tasks.module';
@@ -13,28 +10,22 @@ import { TasksModule } from './tasks/tasks.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // makes env variables accessible throughout the app
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DATABASE_HOST,
-      port: Number(process.env.DATABASE_PORT),
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: Number(process.env.DATABASE_PORT) || 5432,
+      username: process.env.DATABASE_USERNAME || 'postgres',
+      password: process.env.DATABASE_PASSWORD || 'postgres',
+      database: process.env.DATABASE_NAME || 'taskmanager',
       entities: [User, Task],
-      synchronize: true,           // only for dev, auto-creates tables
-      logging: ['query', 'error'], // helpful for debugging
+      synchronize: true,
+      logging: ['query', 'error'],
     }),
-
-    AuthModule,          
-    UsersModule, 
-    TasksModule,    
-          
-
-    // TasksModule,      // ← uncomment/add when you create tasks module
+    AuthModule,
+    UsersModule,
+    TasksModule,
   ],
-  // controllers: [AppController], // ← if you have a default controller
-  // providers: [AppService],
 })
 export class AppModule {}

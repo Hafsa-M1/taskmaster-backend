@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import * as bcrypt from 'bcrypt';   // ← this line was missing
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -12,14 +12,22 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { email } });
+    return this.usersRepository.findOne({ 
+      where: { email },
+      // We need password for login validation
+    });
+  }
+
+  async findById(id: string): Promise<User | null> {
+    return this.usersRepository.findOne({ 
+      where: { id },
+      select: ['id', 'email', 'name', 'createdAt', 'updatedAt'] // Exclude password
+    });
   }
 
   async create(createUserDto: { email: string; password: string; name?: string }): Promise<User> {
     const existingUser = await this.findByEmail(createUserDto.email);
-    if (existingUser) {
-      throw new BadRequestException('Email already exists');
-    }
+    if (existingUser) throw new BadRequestException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
