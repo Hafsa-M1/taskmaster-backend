@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Task } from './task.entity';
 
 @Entity('users')
 export class User {
@@ -9,10 +10,13 @@ export class User {
   email: string;
 
   @Column({ nullable: false })
-  password: string;  // will be hashed
+  password: string;
 
   @Column({ nullable: true })
-  name?: string;     // optional, you can add more fields later
+  name?: string;
+
+  @OneToMany(() => Task, (task) => task.user)
+  tasks: Task[];
 
   @CreateDateColumn()
   createdAt: Date;
