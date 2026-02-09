@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('tasks')
@@ -9,15 +16,21 @@ export class Task {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   description?: string;
 
   @Column({ default: false })
   completed: boolean;
 
-  @Column({ default: 0 })
-  timeSpent: number; // total time in seconds
+  @Column({ default: 0, type: 'bigint' }) // total seconds spent
+  timeSpent: number;
 
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   user: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

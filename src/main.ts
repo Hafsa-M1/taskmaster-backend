@@ -5,20 +5,32 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable global validation for all incoming requests
+  // Enable CORS - this is the critical fix for your frontend-backend connection
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',     // default React port
+      'http://localhost:3001',     // sometimes CRA uses next available port
+      'http://127.0.0.1:3000',     // sometimes localhost is resolved as 127.0.0.1
+      'http://127.0.0.1:3001',
+    ],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,            // allow cookies / auth headers if you add them later
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
+
+  // Global validation pipe (already good, keeping it)
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,                // strip properties not in DTO
-      forbidNonWhitelisted: true,     // throw error if unknown properties are sent
-      transform: true,                // automatically transform payload to DTO types
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
       transformOptions: {
-        enableImplicitConversion: true, // optional: convert query params / body values
+        enableImplicitConversion: true,
       },
     }),
   );
-
-  // Optional: enable CORS if you plan to connect React frontend later
-  // app.enableCors();
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
