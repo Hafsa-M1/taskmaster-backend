@@ -23,7 +23,24 @@ export class Task {
   @Column({ default: false })
   completed: boolean;
 
-  @Column({ default: 0, type: 'bigint' }) // total seconds spent
+  @Column({ 
+    default: 0, 
+    type: 'bigint', // Keep as bigint but use transformer
+    transformer: {
+      to: (value: number) => value, // Store as number
+      from: (value: any) => {
+        // Convert from database value to JavaScript number
+        if (value === null || value === undefined) return 0;
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') {
+          const num = parseInt(value, 10);
+          return isNaN(num) ? 0 : num;
+        }
+        if (typeof value === 'bigint') return Number(value);
+        return 0;
+      }
+    }
+  })
   timeSpent: number;
 
   @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })

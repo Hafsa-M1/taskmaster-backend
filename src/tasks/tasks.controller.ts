@@ -9,8 +9,9 @@ import {
   UseGuards,
   Req,
   ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
-import type { Request } from 'express'; // ← Use import type
+import type { Request } from 'express';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -64,6 +65,14 @@ export class TasksController {
     @Body() body: { seconds: number },
     @Req() req: AuthenticatedRequest,
   ) {
+    // Validate input
+    if (typeof body.seconds !== 'number' || isNaN(body.seconds) || body.seconds <= 0) {
+      throw new BadRequestException({
+        message: 'Invalid time value',
+        details: 'Seconds must be a positive number'
+      });
+    }
+    
     return this.tasksService.updateTimeSpent(id, body.seconds, req.user.id);
   }
 }

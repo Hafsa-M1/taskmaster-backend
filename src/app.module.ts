@@ -18,7 +18,7 @@ import { TasksModule } from './tasks/tasks.module';
       port: Number(process.env.DATABASE_PORT) || 5432,
       username: process.env.DATABASE_USERNAME || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'postgres',
-      database: process.env.DATABASE_NAME || 'taskmanager',
+      database: process.env.DATABASE_NAME || 'taskmaster_dev', // CHANGED to match .env
       entities: [User, Task],
       synchronize: true,
       logging: ['query', 'error'],
